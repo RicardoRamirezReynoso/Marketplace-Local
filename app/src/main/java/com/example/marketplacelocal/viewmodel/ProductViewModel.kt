@@ -1,23 +1,26 @@
 package com.example.marketplacelocal.viewmodel
 
+import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.marketplacelocal.model.Product
 import com.example.marketplacelocal.repository.ProductRepository
+import com.example.marketplacelocal.repository.StorageRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import java.util.UUID
 import javax.inject.Inject
 
 /**
  * `ProductViewModel` gestiona la lógica de negocio relacionada con los productos.
- * Se encarga de cargar la lista de productos desde el repositorio y exponerla a la UI.
  */
 @HiltViewModel
 class ProductViewModel @Inject constructor(
-    private val repository: ProductRepository
+    private val repository: ProductRepository,
+    private val storageRepository: StorageRepository
 ) : ViewModel() {
 
     // Estado interno para la lista de productos
@@ -48,14 +51,27 @@ class ProductViewModel @Inject constructor(
     }
 
     /**
-     * `addProduct` guarda un nuevo producto en el repositorio y notifica el resultado.
-     * @param product El objeto producto a guardar.
-     * @param onResult Callback que devuelve true si se guardó con éxito.
+     * `addProduct` sube la imagen (si existe) y luego guarda el producto en Firestore.
      */
-    fun addProduct(product: Product, onResult: (Boolean) -> Unit) {
+    fun addProduct(product: Product, imageUri: Uri?, onResult: (Boolean) -> Unit) {
         viewModelScope.launch {
             _isLoading.value = true
-            val result = repository.addProduct(product)
+            
+            var finalProduct = product
+            
+            if (imageUri != null) {
+                val path = "products/${UUID.randomUUID()}.jpg"
+                val uploadResult = storageRepository.uploadImage(imageUri, path)
+                if (uploadResult.isSuccess) {
+                    finalProduct = product.copy(imageUrl = uploadResult.getOrThrow())
+                } else {
+                    _isLoading.value = false
+                    onResult(false)
+                    return@launch
+                }
+            }
+            
+            val result = repository.addProduct(finalProduct)
             _isLoading.value = false
             onResult(result.isSuccess)
         }

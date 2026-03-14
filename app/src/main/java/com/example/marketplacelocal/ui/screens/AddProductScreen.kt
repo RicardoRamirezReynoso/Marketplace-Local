@@ -1,24 +1,31 @@
 package com.example.marketplacelocal.ui.screens
 
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import coil.compose.AsyncImage
 import com.example.marketplacelocal.model.Product
 import com.example.marketplacelocal.ui.theme.MarketPlaceLocalTheme
 import com.example.marketplacelocal.viewmodel.ProductViewModel
 
 /**
  * `AddProductScreen` permite a los usuarios publicar un nuevo producto en el MarketPlace.
- * Contiene un formulario con validaciones básicas.
+ * Ahora incluye la capacidad de seleccionar una imagen desde el dispositivo.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -31,9 +38,15 @@ fun AddProductScreen(
     var description by remember { mutableStateOf("") }
     var price by remember { mutableStateOf("") }
     var category by remember { mutableStateOf("") }
-    var imageUrl by remember { mutableStateOf("") }
+    var imageUri by remember { mutableStateOf<Uri?>(null) }
 
     val isLoading by viewModel?.isLoading?.collectAsState() ?: remember { mutableStateOf(false) }
+
+    val launcher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri: Uri? ->
+        imageUri = uri
+    }
 
     Scaffold(
         topBar = {
@@ -55,6 +68,44 @@ fun AddProductScreen(
                 .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
+            // Sección de imagen
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(200.dp)
+                    .padding(bottom = 8.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                if (imageUri != null) {
+                    AsyncImage(
+                        model = imageUri,
+                        contentDescription = "Vista previa de la imagen",
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = ContentScale.Crop
+                    )
+                    FilledTonalButton(
+                        onClick = { launcher.launch("image/*") },
+                        modifier = Modifier.align(Alignment.BottomEnd).padding(8.dp)
+                    ) {
+                        Text("Cambiar")
+                    }
+                } else {
+                    OutlinedCard(
+                        onClick = { launcher.launch("image/*") },
+                        modifier = Modifier.fillMaxSize()
+                    ) {
+                        Column(
+                            modifier = Modifier.fillMaxSize(),
+                            verticalArrangement = Arrangement.Center,
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.size(48.dp))
+                            Text("Seleccionar Imagen")
+                        }
+                    }
+                }
+            }
+
             OutlinedTextField(
                 value = name,
                 onValueChange = { name = it },
@@ -85,13 +136,6 @@ fun AddProductScreen(
                 modifier = Modifier.fillMaxWidth()
             )
 
-            OutlinedTextField(
-                value = imageUrl,
-                onValueChange = { imageUrl = it },
-                label = { Text("URL de la imagen (opcional)") },
-                modifier = Modifier.fillMaxWidth()
-            )
-
             Spacer(modifier = Modifier.weight(1f))
 
             if (isLoading) {
@@ -104,14 +148,14 @@ fun AddProductScreen(
                             description = description,
                             price = price.toDoubleOrNull() ?: 0.0,
                             category = category,
-                            imageUrl = imageUrl
+                            imageUrl = "" // Se actualizará en el ViewModel tras subir la imagen
                         )
-                        viewModel?.addProduct(product) { success ->
+                        viewModel?.addProduct(product, imageUri) { success ->
                             if (success) onProductAdded()
                         }
                     },
                     modifier = Modifier.fillMaxWidth(),
-                    enabled = name.isNotBlank() && description.isNotBlank() && price.isNotBlank()
+                    enabled = name.isNotBlank() && description.isNotBlank() && price.isNotBlank() && imageUri != null
                 ) {
                     Text("Publicar Ahora")
                 }
