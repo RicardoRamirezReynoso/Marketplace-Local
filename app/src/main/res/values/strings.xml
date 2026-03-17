@@ -1,3 +1,27 @@
 <resources>
     <string name="app_name">MarketPlace Local</string>
+    <string name="welcome_back">Welcome Back</string>
+    <string name="login_subtitle">Log in to your local marketplace to continue</string>
+    <string name="email_label">Email</string>
+    <string name="email_placeholder">Enter your email</string>
+    <string name="password_label">Password</string>
+    <string name="password_placeholder">Enter your password</string>
+    <string name="forgot_password">Forgot Password?</string>
+    <string name="log_in">Log In</string>
+    <string name="or_divider">OR</string>
+    <string name="no_account">Don\'t have an account? </string>
+    <string name="sign_up">Sign Up</string>
+    <string name="logo_content_description">Logo</string>
+
+    <!-- Register Screen -->
+    <string name="welcome_title">Welcome to\nMarketPlace Local!</string>
+    <string name="register_subtitle">Join your neighborhood community to buy, sell, and connect with people nearby.</string>
+    <string name="full_name_label">Full Name</string>
+    <string name="full_name_placeholder">e.g. Alex Johnson</string>
+    <string name="email_address_label">Email Address</string>
+    <string name="email_address_placeholder">name@example.com</string>
+    <string name="create_password_placeholder">Create a password</string>
+    <string name="password_hint">Must be at least 8 characters.</string>
+    <string name="create_account">Create Account</string>
+    <string name="already_have_account">Already have an account? </string>
 </resources>
