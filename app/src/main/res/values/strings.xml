@@ -24,4 +24,37 @@
     <string name="password_hint">Must be at least 8 characters.</string>
     <string name="create_account">Create Account</string>
     <string name="already_have_account">Already have an account? </string>
+
+    <!-- Add Product Screen -->
+    <string name="new_post">Nueva Publicación</string>
+    <string name="add_photos">Agregar Fotos</string>
+    <string name="add_photos_subtitle">Sube hasta 5 fotos de tu producto</string>
+    <string name="upload_photos_button">Subir Fotos</string>
+    <string name="product_name_label">Nombre del producto</string>
+    <string name="product_name_placeholder">Ej. Bicicleta de montaña</string>
+    <string name="price_label">Precio</string>
+    <string name="price_placeholder">$ 0.00</string>
+    <string name="description_label">Descripción</string>
+    <string name="description_placeholder">Describe los detalles, estado, tiempo de uso y motivo de venta…</string>
+    <string name="delivery_location_label">Lugar de entrega</string>
+    <string name="delivery_location_placeholder">Indica el lugar o zona de entrega…</string>
+    <string name="product_condition_label">Estado del producto</string>
+    <string name="condition_new">Nuevo</string>
+    <string name="condition_used">Usado</string>
+    <string name="publish_button">Publicar</string>
+
+    <!-- Home Screen -->
+    <string name="search_placeholder">Search items, categories…</string>
+    <string name="fresh_finds">Fresh Finds</string>
+    <string name="nav_home">Home</string>
+    <string name="nav_saved">Saved</string>
+
+    <!-- Detail Screen -->
+    <string name="email_seller">EMAIL SELLER</string>
+    <string name="contact_seller">Contact Seller</string>
+
+    <!-- Saved Screen -->
+    <string name="my_favorites_title">My Favorites</string>
+    <string name="no_favorites_msg">No tienes productos guardados</string>
+    <string name="remove_button">Remove</string>
 </resources>

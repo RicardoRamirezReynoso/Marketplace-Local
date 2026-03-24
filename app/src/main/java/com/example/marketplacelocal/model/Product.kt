@@ -5,6 +5,8 @@ data class Product(
     val name: String = "",
     val description: String = "",
     val price: Double = 0.0,
-    val imageUrl: String = "",
-    val category: String = ""
+    val imageUrls: List<String> = emptyList(),
+    val deliveryLocation: String = "",
+    val condition: String = "Nuevo",
+    val sellerEmail: String = "" // Campo para el correo del vendedor
 )

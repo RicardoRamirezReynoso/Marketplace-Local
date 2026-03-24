@@ -19,3 +19,5 @@ val TextDark = Color(0xFF1A1C1E)
 val TextGrey = Color(0xFF49454F)
 val IconGrey = Color(0xFF938F99)
 val BorderLight = Color(0xFFE0E0E0)
+
+val BorderLightTwo = Color(0xFFF5F5F5)

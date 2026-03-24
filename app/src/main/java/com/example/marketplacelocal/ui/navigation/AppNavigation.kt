@@ -13,10 +13,6 @@ import com.example.marketplacelocal.ui.screens.*
 import com.example.marketplacelocal.viewmodel.AuthViewModel
 import com.example.marketplacelocal.viewmodel.ProductViewModel
 
-/**
- * `MarketPlaceAppNavigation` centraliza la lógica de navegación de la aplicación.
- * Define las rutas, los argumentos y la pantalla inicial según el estado de autenticación.
- */
 @Composable
 fun MarketPlaceAppNavigation() {
     val navController = rememberNavController()
@@ -61,8 +57,33 @@ fun MarketPlaceAppNavigation() {
         composable(Screen.ProductList.route) {
             ProductListScreen(
                 viewModel = productViewModel,
+                authViewModel = authViewModel,
                 onProductClick = { productId ->
                     navController.navigate(Screen.ProductDetail.createRoute(productId))
+                },
+                onAddProductClick = {
+                    navController.navigate(Screen.AddProduct.route)
+                },
+                onNavigateToSaved = {
+                    navController.navigate(Screen.Saved.route) {
+                        launchSingleTop = true
+                    }
+                }
+            )
+        }
+
+        // Pantalla de Favoritos
+        composable(Screen.Saved.route) {
+            SavedScreen(
+                productViewModel = productViewModel,
+                authViewModel = authViewModel,
+                onProductClick = { productId ->
+                    navController.navigate(Screen.ProductDetail.createRoute(productId))
+                },
+                onNavigateToHome = {
+                    navController.navigate(Screen.ProductList.route) {
+                        launchSingleTop = true
+                    }
                 },
                 onAddProductClick = {
                     navController.navigate(Screen.AddProduct.route)
@@ -73,13 +94,14 @@ fun MarketPlaceAppNavigation() {
         // Pantalla para agregar un nuevo producto
         composable(Screen.AddProduct.route) {
             AddProductScreen(
-                viewModel = productViewModel,
+                productViewModel = productViewModel,
+                authViewModel = authViewModel,
                 onBack = { navController.popBackStack() },
                 onProductAdded = { navController.popBackStack() }
             )
         }
 
-        // Pantalla con la información detallada de un producto específico
+        // Pantalla con la información detallada del producto
         composable(
             route = Screen.ProductDetail.route,
             arguments = listOf(navArgument("productId") { type = NavType.StringType })
@@ -88,7 +110,21 @@ fun MarketPlaceAppNavigation() {
             ProductDetailScreen(
                 productId = productId,
                 viewModel = productViewModel,
-                onBack = { navController.popBackStack() }
+                authViewModel = authViewModel,
+                onBack = { navController.popBackStack() },
+                onNavigateToHome = {
+                    navController.navigate(Screen.ProductList.route) {
+                        popUpTo(Screen.ProductList.route) { inclusive = true }
+                    }
+                },
+                onNavigateToSaved = {
+                    navController.navigate(Screen.Saved.route) {
+                        launchSingleTop = true
+                    }
+                },
+                onAddProductClick = {
+                    navController.navigate(Screen.AddProduct.route)
+                }
             )
         }
     }

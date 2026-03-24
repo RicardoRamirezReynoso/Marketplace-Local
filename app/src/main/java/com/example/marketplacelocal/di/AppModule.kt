@@ -41,7 +41,6 @@ object AppModule {
         return FirebaseProductRepository(firestore)
     }
 
-    //Inyecta FirebaseAuth para construir el repositorio de autenticación
     @Provides
     @Singleton
     fun provideAuthRepository(auth: FirebaseAuth): AuthRepository {

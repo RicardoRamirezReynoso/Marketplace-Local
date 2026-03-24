@@ -8,9 +8,9 @@ class FirebaseAuthRepository @Inject constructor(
     private val firebaseAuth: FirebaseAuth
 ) : AuthRepository {
 
+    //Funcion para logear al usuario
     override val currentUser: FirebaseUser?
         get() = firebaseAuth.currentUser
-
     override fun login(email: String, pass: String, onResult: (Result<Unit>) -> Unit) {
         firebaseAuth.signInWithEmailAndPassword(email, pass)
             .addOnCompleteListener { task ->
@@ -21,7 +21,7 @@ class FirebaseAuthRepository @Inject constructor(
                 }
             }
     }
-
+     //Funcion para registrar al usuario
     override fun register(email: String, pass: String, onResult: (Result<Unit>) -> Unit) {
         firebaseAuth.createUserWithEmailAndPassword(email, pass)
             .addOnCompleteListener { task ->

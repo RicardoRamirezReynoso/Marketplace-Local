@@ -23,6 +23,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
@@ -33,30 +34,44 @@ import com.example.marketplacelocal.R
 import com.example.marketplacelocal.ui.theme.*
 import com.example.marketplacelocal.viewmodel.AuthViewModel
 
-/**
- * `RegisterScreen` permite a los nuevos usuarios crear una cuenta.
- */
 @Composable
 fun RegisterScreen(
-    viewModel: AuthViewModel? = null,
+    viewModel: AuthViewModel,
     onNavigateToLogin: () -> Unit = {},
     onRegisterSuccess: () -> Unit = {}
 ) {
-    var fullName by remember { mutableStateOf("") }
-    var email by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
-    var passwordVisible by remember { mutableStateOf(false) }
+    val isLoading by viewModel.isLoading.collectAsState()
+    val error by viewModel.error.collectAsState()
+    val currentUser by viewModel.currentUser.collectAsState()
 
-    val isLoading by viewModel?.isLoading?.collectAsState() ?: remember { mutableStateOf(false) }
-    val error by viewModel?.error?.collectAsState() ?: remember { mutableStateOf(null) }
-    val currentUser by viewModel?.currentUser?.collectAsState() ?: remember { mutableStateOf(null) }
-
-    // Si el registro es exitoso, navegamos a la pantalla principal
     LaunchedEffect(currentUser) {
         if (currentUser != null) {
             onRegisterSuccess()
         }
     }
+
+    RegisterContent(
+        isLoading = isLoading,
+        error = error,
+        onRegisterClick = { _, email, password -> 
+            // Por ahora registramos solo con email y pass en Firebase Auth
+            viewModel.register(email, password) 
+        },
+        onNavigateToLogin = onNavigateToLogin
+    )
+}
+
+@Composable
+fun RegisterContent(
+    isLoading: Boolean,
+    error: String?,
+    onRegisterClick: (String, String, String) -> Unit,
+    onNavigateToLogin: () -> Unit
+) {
+    var fullName by remember { mutableStateOf("") }
+    var email by remember { mutableStateOf("") }
+    var password by remember { mutableStateOf("") }
+    var passwordVisible by remember { mutableStateOf(false) }
 
     Box(
         modifier = Modifier
@@ -75,7 +90,7 @@ fun RegisterScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            // Logo Icon
+            // Icono de logo
             Box(
                 modifier = Modifier
                     .size(100.dp)
@@ -110,7 +125,7 @@ fun RegisterScreen(
 
             Spacer(modifier = Modifier.height(32.dp))
 
-            // Full Name Field
+            // Campo para nombre de usuario
             Column(modifier = Modifier.fillMaxWidth()) {
                 Text(
                     text = stringResource(R.string.full_name_label),
@@ -130,13 +145,14 @@ fun RegisterScreen(
                         unfocusedContainerColor = Color.White,
                         focusedContainerColor = Color.White
                     ),
-                    singleLine = true
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next)
                 )
             }
 
             Spacer(modifier = Modifier.height(20.dp))
 
-            // Email Field
+            // Campo Email
             Column(modifier = Modifier.fillMaxWidth()) {
                 Text(
                     text = stringResource(R.string.email_address_label),
@@ -157,13 +173,16 @@ fun RegisterScreen(
                         focusedContainerColor = Color.White
                     ),
                     singleLine = true,
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email)
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Email,
+                        imeAction = ImeAction.Next
+                    )
                 )
             }
 
             Spacer(modifier = Modifier.height(20.dp))
 
-            // Password Field
+            // Campo de Contraseña con Toggle de Visibilidad
             Column(modifier = Modifier.fillMaxWidth()) {
                 Text(
                     text = stringResource(R.string.password_label),
@@ -191,7 +210,10 @@ fun RegisterScreen(
                         focusedContainerColor = Color.White
                     ),
                     singleLine = true,
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password)
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Password,
+                        imeAction = ImeAction.Done
+                    )
                 )
                 Text(
                     text = stringResource(R.string.password_hint),
@@ -200,9 +222,10 @@ fun RegisterScreen(
                 )
             }
 
+            // Mostrar error si existe
             if (error != null) {
                 Text(
-                    text = error!!,
+                    text = error,
                     color = MaterialTheme.colorScheme.error,
                     style = MaterialTheme.typography.bodySmall,
                     modifier = Modifier.padding(top = 8.dp)
@@ -211,12 +234,12 @@ fun RegisterScreen(
 
             Spacer(modifier = Modifier.height(32.dp))
 
-            // Register Button
+            // Botón de Registro, se habilita solo con campos válidos
             if (isLoading) {
                 CircularProgressIndicator(color = PrimaryOrange)
             } else {
                 Button(
-                    onClick = { viewModel?.register(email, password) },
+                    onClick = { onRegisterClick(fullName, email, password) },
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(56.dp),
@@ -236,7 +259,7 @@ fun RegisterScreen(
 
             Spacer(modifier = Modifier.height(32.dp))
 
-            // Footer
+            // Footer para volver al Login
             Row(
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -257,10 +280,16 @@ fun RegisterScreen(
     }
 }
 
-@Preview(showBackground = true)
+@Preview(showBackground = true, name = "Registro Normal")
 @Composable
 fun RegisterPreview() {
     MarketPlaceLocalTheme {
-        RegisterScreen()
+        RegisterContent(
+            isLoading = false,
+            error = null,
+            onRegisterClick = { _, _, _ -> },
+            onNavigateToLogin = {}
+        )
     }
 }
+

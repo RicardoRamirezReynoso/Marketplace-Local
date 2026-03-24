@@ -31,25 +31,41 @@ import com.example.marketplacelocal.R
 import com.example.marketplacelocal.ui.theme.*
 import com.example.marketplacelocal.viewmodel.AuthViewModel
 
+
 @Composable
 fun LoginScreen(
-    viewModel: AuthViewModel? = null,
+    viewModel: AuthViewModel,
     onNavigateToRegister: () -> Unit = {},
     onLoginSuccess: () -> Unit = {}
 ) {
-    var email by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
-    var passwordVisible by remember { mutableStateOf(false) }
-    
-    val isLoading by viewModel?.isLoading?.collectAsState() ?: remember { mutableStateOf(false) }
-    val error by viewModel?.error?.collectAsState() ?: remember { mutableStateOf(null) }
-    val currentUser by viewModel?.currentUser?.collectAsState() ?: remember { mutableStateOf(null) }
+    val isLoading by viewModel.isLoading.collectAsState()
+    val error by viewModel.error.collectAsState()
+    val currentUser by viewModel.currentUser.collectAsState()
 
     LaunchedEffect(currentUser) {
         if (currentUser != null) {
             onLoginSuccess()
         }
     }
+
+    LoginContent(
+        isLoading = isLoading,
+        error = error,
+        onLoginClick = { email, password -> viewModel.login(email, password) },
+        onNavigateToRegister = onNavigateToRegister
+    )
+}
+
+@Composable
+fun LoginContent(
+    isLoading: Boolean,
+    error: String?,
+    onLoginClick: (String, String) -> Unit,
+    onNavigateToRegister: () -> Unit
+) {
+    var email by remember { mutableStateOf("") }
+    var password by remember { mutableStateOf("") }
+    var passwordVisible by remember { mutableStateOf(false) }
 
     Box(
         modifier = Modifier
@@ -67,7 +83,7 @@ fun LoginScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            // Logo Icon
+            // Icono de logo
             Box(
                 modifier = Modifier
                     .size(100.dp)
@@ -85,18 +101,14 @@ fun LoginScreen(
 
             Text(
                 text = stringResource(R.string.app_name),
-                style = MaterialTheme.typography.headlineSmall.copy(
-                    color = TextDark
-                )
+                style = MaterialTheme.typography.headlineSmall.copy(color = TextDark)
             )
 
             Spacer(modifier = Modifier.height(32.dp))
 
             Text(
                 text = stringResource(R.string.welcome_back),
-                style = MaterialTheme.typography.headlineMedium.copy(
-                    color = TextDark
-                )
+                style = MaterialTheme.typography.headlineMedium.copy(color = TextDark)
             )
             
             Text(
@@ -110,13 +122,11 @@ fun LoginScreen(
 
             Spacer(modifier = Modifier.height(40.dp))
 
-            // Email Field
+            // Campo de Email
             Column(modifier = Modifier.fillMaxWidth()) {
                 Text(
                     text = stringResource(R.string.email_label),
-                    style = MaterialTheme.typography.labelLarge.copy(
-                        color = TextGrey
-                    ),
+                    style = MaterialTheme.typography.labelLarge.copy(color = TextGrey),
                     modifier = Modifier.padding(bottom = 8.dp)
                 )
                 OutlinedTextField(
@@ -135,13 +145,14 @@ fun LoginScreen(
                     singleLine = true,
                     keyboardOptions = KeyboardOptions(
                         keyboardType = KeyboardType.Email,
-                        imeAction = ImeAction.Next)
+                        imeAction = ImeAction.Next
+                    )
                 )
             }
 
             Spacer(modifier = Modifier.height(20.dp))
 
-            // Password Field
+            // Campo de contraseña
             Column(modifier = Modifier.fillMaxWidth()) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -150,16 +161,12 @@ fun LoginScreen(
                 ) {
                     Text(
                         text = stringResource(R.string.password_label),
-                        style = MaterialTheme.typography.labelLarge.copy(
-                            color = TextGrey
-                        )
+                        style = MaterialTheme.typography.labelLarge.copy(color = TextGrey)
                     )
                     Text(
                         text = stringResource(R.string.forgot_password),
-                        style = MaterialTheme.typography.labelLarge.copy(
-                            color = PrimaryOrange
-                        ),
-                        modifier = Modifier.clickable { /* Handle forgot password */ }
+                        style = MaterialTheme.typography.labelLarge.copy(color = PrimaryOrange),
+                        modifier = Modifier.clickable { /* Proximo desarollo */ }
                     )
                 }
                 Spacer(modifier = Modifier.height(8.dp))
@@ -184,13 +191,16 @@ fun LoginScreen(
                         focusedContainerColor = Color.White
                     ),
                     singleLine = true,
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password)
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Password,
+                        imeAction = ImeAction.Done
+                    )
                 )
             }
 
             if (error != null) {
                 Text(
-                    text = error!!,
+                    text = error,
                     color = MaterialTheme.colorScheme.error,
                     style = MaterialTheme.typography.bodySmall,
                     modifier = Modifier.padding(top = 8.dp)
@@ -204,7 +214,7 @@ fun LoginScreen(
                 CircularProgressIndicator(color = PrimaryOrange)
             } else {
                 Button(
-                    onClick = { viewModel?.login(email, password) },
+                    onClick = { onLoginClick(email, password) },
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(56.dp),
@@ -212,7 +222,8 @@ fun LoginScreen(
                     colors = ButtonDefaults.buttonColors(
                         containerColor = PrimaryOrange,
                         contentColor = Color.White
-                    )
+                    ),
+                    enabled = email.isNotBlank() && password.isNotBlank()
                 ) {
                     Text(
                         text = stringResource(R.string.log_in),
@@ -239,7 +250,7 @@ fun LoginScreen(
 
             Spacer(modifier = Modifier.height(32.dp))
 
-            // Sign Up Link
+            // Campo para registro
             Row(
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -260,10 +271,16 @@ fun LoginScreen(
     }
 }
 
-@Preview(showBackground = true)
+@Preview(showBackground = true, name = "Estado Normal")
 @Composable
 fun LoginPreview() {
     MarketPlaceLocalTheme {
-        LoginScreen()
+        LoginContent(
+            isLoading = false,
+            error = null,
+            onLoginClick = { _, _ -> },
+            onNavigateToRegister = {}
+        )
     }
 }
+

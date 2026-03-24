@@ -10,10 +10,6 @@ import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
-    /**
-     * `onCreate` inicializa la interfaz de usuario de la aplicación.
-     * Ahora la navegación está delegada a `MarketPlaceAppNavigation`.
-     */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()

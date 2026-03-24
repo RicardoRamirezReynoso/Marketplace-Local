@@ -11,10 +11,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-/**
- * `AuthViewModel` gestiona la lógica de autenticación de la aplicación.
- * Proporciona estados para el usuario actual, errores y el estado de carga.
- */
+
 @HiltViewModel
 class AuthViewModel @Inject constructor(
     private val repository: AuthRepository
@@ -32,9 +29,7 @@ class AuthViewModel @Inject constructor(
     private val _error = MutableStateFlow<String?>(null)
     val error: StateFlow<String?> = _error.asStateFlow()
 
-    /**
-     * `login` autentica a un usuario con su email y contraseña.
-     */
+    // autentica a un usuario con su email y contraseña
     fun login(email: String, pass: String) {
         viewModelScope.launch {
             _isLoading.value = true
@@ -50,9 +45,7 @@ class AuthViewModel @Inject constructor(
         }
     }
 
-    /**
-     * `register` crea una nueva cuenta de usuario en Firebase.
-     */
+    // Crea una nueva cuenta de usuario en Firebase
     fun register(email: String, pass: String) {
         viewModelScope.launch {
             _isLoading.value = true
@@ -68,9 +61,7 @@ class AuthViewModel @Inject constructor(
         }
     }
 
-    /**
-     * `logout` cierra la sesión del usuario actual.
-     */
+    // Cierra la sesión actual del usuario
     fun logout() {
         repository.logout()
         _currentUser.value = null
